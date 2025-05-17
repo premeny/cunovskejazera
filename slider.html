@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {box-sizing: border-box;}
+
+.img-comp-container {
+  position: relative;
+  width:96vw;
+  height: 200px; /*should be the same height as the images*/
+  box-shadow: 0px 0px 20px #aaffda;
+}
+
+.img-comp-img {
+  position: absolute;
+  width: auto;
+  height: auto;
+  overflow:hidden;
+}
+
+.img-comp-img img {
+  display:block;
+  vertical-align:middle;
+  justify-content: center;
+  text-align:center;
+  width:96vw;
+  height:auto;
+}
+
+.img-comp-slider {
+  position: absolute;
+  z-index:9;
+  cursor: ew-resize;
+  /*set the appearance of the slider:*/
+  width: 40px;
+  height: 300px;
+  background-color: #ffffff;
+  opacity: 0.1;
+  /*border: 2px solid #ff0000: */
+  /*border-radius: 30% 30% 5% 5%;*/
+  /*box-shadow: 0px 0px 20px #ffffff;*/
+}
+#copyrightID{
+  position: absolute;
+  top:-100vh;
+  color:#abc2c1;
+  font-size:2vw;
+}
+#loadingAid{
+   z-index:10;
+  position: absolute;
+  top:25vh;
+  left:25vw;
+  transform:translate(-50%,0);
+  color:#7cc5de;
+  background:black;
+  font-size:4vw;
+  padding:1vw;
+}
+#loadingBid{
+  z-index:10;
+  position: absolute;
+  top:26vh;
+  left:75vw;
+  transform:translate(-50%,0);
+  color:#7cdeaa;
+  background:black;
+  font-size:4vw;
+  padding:1vw;
+}
+ #yearsIDa{
+   position: absolute;
+  top:-120vh;
+  left:25vw;
+  transform:translate(-50%,-120%);
+   color:#7cc5de;
+   background:#304f59;
+   font-size:4vw;
+   box-shadow: 0px 0px 10px #7cc5de;
+   text-align:center;
+ }
+ #yearsIDb{
+   position: absolute;
+  top:-120vh;
+  left:75vw;
+  transform:translate(-50%,-120%);
+   color:#7cdeaa;
+   background:#254534;
+   font-size:4vw;
+   box-shadow: 0px 0px 10px #7cdeaa;
+   text-align:center;
+ }
+ }
+</style>
+<script>
+  
+  window.onload = function() {
+    if(!window.location.hash) {
+        window.location = window.location + '#loaded';
+        window.location.reload();
+    }
+  }
+  
+  
+  var vykreslenyRokA="1978";
+  var vykreslenyRokB="1969";
+
+function initComparisons() {
+  var x, i;
+  /*find all elements with an "overlay" class:*/
+  x = document.getElementsByClassName("img-comp-overlay");
+  for (i = 0; i < x.length; i++) {
+    /*once for each "overlay" element:
+    pass the "overlay" element as a parameter when executing the compareImages function:*/
+    compareImages(x[i]);
+  }  
+  document.getElementById("yearsIDa").value = vykreslenyRokA;
+  document.getElementById("yearsIDb").value = vykreslenyRokB;
+
+   function compareImages(img) {
+    var img, clicked = 0, w, h;
+    /*get the width and height of the img element*/      
+     w = img.offsetWidth;
+    h = img.offsetHeight;
+    /*set the width of the img element to 50%:*/
+    img.style.width = (w / 2) + "px";
+    /*create slider:*/
+    window.slider = document.createElement("DIV");
+    slider.setAttribute("class", "img-comp-slider");
+    /*insert slider*/
+    img.parentElement.insertBefore(slider, img);
+    /*position the slider in the middle:*/
+    //slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
+    slider.style.top=0;
+    slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
+    /*execute a function when the mouse button is pressed:*/
+    slider.addEventListener("mousedown", slideReady);
+    /*and another function when the mouse button is released:*/
+    window.addEventListener("mouseup", slideFinish);
+    /*or touched (for touch screens:*/
+    slider.addEventListener("touchstart", slideReady);
+    /*and released (for touch screens:*/
+    window.addEventListener("touchend", slideFinish);
+    function slideReady(e) {
+      /*prevent any other actions that may occur when moving over the image:*/
+      e.preventDefault();
+      /*the slider is now clicked and ready to move:*/
+      clicked = 1;
+      /*execute a function when the slider is moved:*/
+      window.addEventListener("mousemove", slideMove);
+      window.addEventListener("touchmove", slideMove);
+    }
+    function slideFinish() {
+      /*the slider is no longer clicked:*/
+      clicked = 0;
+    }
+    function slideMove(e) {
+      var pos;
+      /*if the slider is no longer clicked, exit this function:*/
+      if (clicked == 0) return false;
+      /*get the cursor's x position:*/
+      pos = getCursorPos(e)
+      /*prevent the slider from being positioned outside the image:*/
+      if (pos < 0) pos = 0;
+      if (pos > w) pos = w;
+      /*execute a function that will resize the overlay image according to the cursor:*/
+      slide(pos);
+    }                                   
+    function getCursorPos(e) {
+      var a, x = 0;
+      e = (e.changedTouches) ? e.changedTouches[0] : e;
+      /*get the x positions of the image:*/
+      a = img.getBoundingClientRect();
+      /*calculate the cursor's x coordinate, relative to the image:*/
+      x = e.pageX - a.left;
+      /*consider any page scrolling:*/
+      x = x - window.pageXOffset;
+      return x;
+    }
+    function slide(x) {
+      /*resize the image:*/
+      img.style.width = x + "px";
+      /*position the slider:*/
+      slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
+    }
+  }
+}
+  
+
+function zmenaRokuA() {
+	var dropListA = document.getElementById("yearsIDa");
+	var hodnotaA = dropListA.options[dropListA.selectedIndex].value;
+    document.getElementById("loadingAid").style.display = 'block';
+    document.getElementById("loadingAid").innerHTML = "..načítavam <br> snímok";
+     document.getElementById("imgA").src=hodnotaA+".jpg";
+     vykreslenyRokA=hodnotaA;
+     
+}
+  
+function zmenaRokuB() {
+	var dropListB = document.getElementById("yearsIDb");
+	var hodnotaB = dropListB.options[dropListB.selectedIndex].value;
+  document.getElementById("loadingBid").style.display = 'block';
+     document.getElementById("loadingBid").innerHTML = "..načítavam <br> snímok";
+     document.getElementById("imgB").src=hodnotaB+".jpg";     
+     vykreslenyRokB=hodnotaB;
+}
+</script>
+</head>
+<body bgcolor="black" onerror="location.reload();">
+   <hr style="height:0; margin:1vh; visibility:hidden;" />
+   <center><p style="color:#aaffda;font-size:3vw">Historické snímky oblasti Čunovských jazier</p> </center> 
+  <hr style="height:0; margin:2vh; visibility:hidden;" />
+
+  <select id="yearsIDa" name="yearsA" size="1" onchange="zmenaRokuA()">
+  <option value="1955" style="background-color:#f7d7f4;color:#4d1447;">1955 map</option>
+  <option value="1961">1961</option>
+  <option value="1964" style="background-color:#c7d7f0;color:#000000;">1964</option>
+  <option value="1964_61" style="background-color:#c7d7f0;color:#000000;">1964/61</option>
+  <option value="1967">1967</option>
+  <option value="1969" style="background-color:#fffcab;color:#000000;">1969</option>
+  <option value="1969_50" style="background-color:#fffcab;color:#000000;">1969/50</option>
+  <option value="1978">1978</option>
+  <option value="1980">1980</option>
+  <option value="1988">1988</option>
+  <option value="2002">2002</option>
+  <option value="2014">2014</option>
+  <option value="2019">2019</option>
+ </select> 
+
+ <select id="yearsIDb" name="yearsB" size="1" onchange="zmenaRokuB()">
+  <option value="1955" style="background-color:#f7d7f4;color:#4d1447;">1955 map</option>
+  <option value="1961">1961</option>
+  <option value="1964" style="background-color:#c7d7f0;color:#000000;">1964</option>
+  <option value="1964_61" style="background-color:#c7d7f0;color:#000000;">1964/61</option>
+  <option value="1967">1967</option>
+  <option value="1969" style="background-color:#fffcab;color:#000000;">1969</option>
+  <option value="1969_50" style="background-color:#fffcab;color:#000000;">1969/50</option>
+  <option value="1978">1978</option>
+  <option value="1980">1980</option>
+  <option value="1988">1988</option>
+  <option value="2002">2002</option>
+  <option value="2014">2014</option>
+  <option value="2019">2019</option>
+ </select>
+    
+  <center> 
+    <p style="color:#aaffda;font-size:2vw" id="popisID">
+      rok snímky
+    </p>
+  </center>
+  <div id="loadingAid">..načítavam <br> snímok</div>
+  <div id="loadingBid">..načítavam <br> snímok</div>
+ <hr style="height:0; margin:0.1vh; visibility:hidden;" />
+
+<div id="kontID" class="img-comp-container">
+  <div class="img-comp-img">
+    <img id="imgB" src="1969.jpg" width="300" height="200" onload="imageloadedA(this)">
+  </div>
+  <div class="img-comp-img img-comp-overlay">
+    <img id="imgA" src="1978.jpg" width="300" height="200" onload="imageloadedB(this)">
+  </div>
+</div>
+  <div id="copyrightID">
+    <hr style="height:0; margin:0.5vh; visibility:hidden;" />
+<center>&copy;| Historická ortofotomapa © GEODIS SLOVAKIA, s.r.o. a Historické LMS © Topografický ústav Banská Bystrica| © EUROSENSE | © GOOGLE | © MAXAR Technologies | © CNES/Airbus | 
+&copy; Čunovské Jazerá Bez Odpadkov ČJBO || watermark protected 
+</center>
+  </div>
+<script>
+/*Execute a function that will execute an image compare function for each element with the img-comp-overlay class:*/
+initComparisons();
+  
+function imageloadedA(obr){
+  if(obr.complete){
+    var vyskaObr= obr.height;
+    document.getElementById("kontID").style.height=vyskaObr+"px";
+    window.slider.style.height=vyskaObr+"px";
+    document.getElementById("loadingAid").innerHTML="";
+    document.getElementById("loadingBid").innerHTML="";
+    document.getElementById("loadingAid").style.display = 'none';
+    document.getElementById("loadingBid").style.display = 'none';
+
+    var copyright=document.getElementById("copyrightID");
+    let rect = obr.getBoundingClientRect();
+    copyright.style.top=rect.bottom+"px";
+    document.getElementById("yearsIDa").style.top=rect.top+"px";
+    document.getElementById("yearsIDb").style.top=rect.top+"px";
+    
+  }
+}
+function imageloadedB(obr){
+  if(obr.complete){
+     document.getElementById("loadingBid").innerHTML="";
+     document.getElementById("loadingAid").innerHTML="";
+    document.getElementById("loadingAid").style.display = 'none';
+    document.getElementById("loadingBid").style.display = 'none';
+  }
+}
+
+
+</script>
+
+</body>
+</html>
